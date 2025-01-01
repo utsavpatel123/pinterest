@@ -1,0 +1,6 @@
+# Node modules
+node_modules/
+
+# .env file containing environment variables (sensitive information)
+.env
+

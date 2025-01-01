@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+  
+
+  <% if (typeof errorMessage !=='undefined' ) { %>
+    <div class="messageContainer" id="messageContainer">
+    <div class="flashMsg">
+        <p>
+            <%= errorMessage %>
+        </p>
+    </div>
+  </div>
+    <% } %>
+      
+    <div class="container">
+        <div class="content">
+          <!--pinterest logo-->
+          <img src="https://i.pinimg.com/originals/d3/d1/75/d3d175e560ae133f1ed5cd4ec173751a.png" alt="pin logo" class="img1" />
+          <p class="header">Log in</p>
+
+         <form action="/user/login" method="post">
+          <input type="email" name="email" placeholder="Email" class="detail" /><br />
+          <input type="password" name="password" placeholder="Password" class="detail" />
+            <br>
+            <div class="forget"> 
+              <a href="#">Forgot your password?</a>
+            </div>
+             <br>
+           <button class="btn int">Log in</button>
+         </form>
+          <div>
+            <div class="register">
+              <a href="/register">not account?sign up</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+<script src="/js/login.js"></script>
+</body>
+</html>
