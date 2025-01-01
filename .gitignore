@@ -5,7 +5,7 @@ node_modules/
 .env
 
 #package-lock.json file
-package-lock.json/
+package-lock.json
 
 #package.json file
-package.json/
+package.json
