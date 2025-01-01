@@ -4,3 +4,8 @@ node_modules/
 # .env file containing environment variables (sensitive information)
 .env
 
+#package-lock.json file
+package-lock.json/
+
+#package.json file
+package.json/
