@@ -6,14 +6,22 @@ import { apiresponse } from "../utils/apiResponse.js";
 
 
 // generate referash and access token for authentication
-const generateAccessRefreshToken = asyncHandler(async function(userId){
+const generateAccessRefreshToken = async function(userId){
 
      try {
-      const user = await userModel.findOne({userId})
+      const user = await userModel.findById(userId)
       
+      if (!user) {
+        throw new apierror(400, "User not found");
+      }
+
       // generate access and refresh tokens
       const accessToken = user.generateAccessToken();    
       const refreshToken = user.generateRefreshToken();    
+
+      if (!accessToken || !refreshToken) {
+        throw new apierror(400, "Token generation failed");
+      }
 
       // add refreshToken in database
       user.refreshToken = refreshToken;
@@ -21,13 +29,14 @@ const generateAccessRefreshToken = asyncHandler(async function(userId){
       // save refreshToken in database
       await user.save({validateBeforeSave: false})
 
-      return {accessToken, refreshToken} 
+      return {accessToken, refreshToken}; 
 
      } catch (error) {
+          console.log(error);
           throw new apierror(500, "something went wrong");
      }
 
-})
+}
 
 
 // Register function
@@ -58,13 +67,10 @@ const generateAccessRefreshToken = asyncHandler(async function(userId){
         return res.render("register", { errorMessage: "Something went wrong" });
     }
     
-  
     // Redirect to login page after successful registration
     res.redirect("/login");
   });
 
-
-  
 
 // login function 
 const loginUser = asyncHandler(async function(req, res) {
@@ -92,12 +98,13 @@ const loginUser = asyncHandler(async function(req, res) {
         }
         
         // generate tokens
-        const {accessToken, refreshToken} =  await generateAccessRefreshToken(findUser._id)
+        const {accessToken, refreshToken} =  await generateAccessRefreshToken(findUser._id);
 
 
         if (!accessToken || !refreshToken) {
           return res.render("login", {errorMessage: "token are undefined!"})
         }
+        
   
         // for securety
         const options = {
@@ -106,22 +113,40 @@ const loginUser = asyncHandler(async function(req, res) {
         }
 
         // send token in cookie
-        //  res.cookie("accessToken", accessToken, options).cookie("refreshToken", refreshToken, options) 
+         res.cookie("accessToken", accessToken, options).cookie("refreshToken", refreshToken, options) 
 
-        res.cookie()
-         const loggedInUser = await userModel.findById(user._id).select("-password -refreshToken")
-       
-           res.json(
-            new apiresponse(200, loggedInUser, "user loggedIn successfully")
-          )
-        
-          res.render("profile", {user: loggedInUser})
+         const loggedInUser = await userModel.findById(findUser._id).select("-password -refreshToken")
 
-        // redirect to profile
-        res.redirect("/profile");
+           res.redirect("/profile");
+        //  return res.render("profile", { user: loggedInUser })
 })
   
- export {registerUser, loginUser} 
+// loggedOut function
+const loggedOutUser = asyncHandler(async function(req, res){
+  
+     const updateUser  = await userModel.findByIdAndUpdate(
+      req.user._id,
+       {
+        $set: {
+          refreshToken: undefined
+        },
+      },
+      {
+        new: true
+      }
+    )
 
+    const options = {
+      secure: true,
+      httpOnly: true
+    }
+    
+    if(updateUser){
+      return res.status(200).clearCookie("accessToken", options).clearCookie("refreshToken", options)
+    }
+    
+    res.redirect("/login")
 
+})
 
+export {registerUser, loginUser, loggedOutUser} 
